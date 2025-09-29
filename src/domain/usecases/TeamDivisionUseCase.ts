@@ -1,5 +1,5 @@
-import {Participant} from "@domain/entities/Participant.ts";
-import {Team} from "@domain/entities/Team.ts";
+import { Participant } from '@domain/entities/Participant.ts';
+import { Team } from '@domain/entities/Team.ts';
 
 export class TeamDivisionUseCase {
   divideTeams(
@@ -18,10 +18,7 @@ export class TeamDivisionUseCase {
     }
   }
 
-  private divideByGradeBalance(
-    participants: Participant[],
-    teamSize: number
-  ): TeamDivisionResult {
+  private divideByGradeBalance(participants: Participant[], teamSize: number): TeamDivisionResult {
     const lowerGrades = participants.filter(p => p.grade <= 3);
     const upperGrades = participants.filter(p => p.grade >= 4);
 
@@ -56,8 +53,9 @@ export class TeamDivisionUseCase {
       teamArrays[teamIndex].push(player);
     });
 
-    return teamArrays.map((members, index) =>
-      new Team(`${groupName}-${index}`, `${groupName} チーム${index + 1}`, members)
+    return teamArrays.map(
+      (members, index) =>
+        new Team(`${groupName}-${index}`, `${groupName} チーム${index + 1}`, members)
     );
   }
 
@@ -84,8 +82,8 @@ export class TeamDivisionUseCase {
   }
 
   private findTeam(teams: TeamDivisionResult, teamId: string): Team | null {
-    const found = teams.lowerTeams.find(t => t.id === teamId) ||
-      teams.upperTeams.find(t => t.id === teamId);
+    const found =
+      teams.lowerTeams.find(t => t.id === teamId) || teams.upperTeams.find(t => t.id === teamId);
     return found || null;
   }
 }

@@ -11,7 +11,15 @@ interface Props {
   onToggleMoveMode: () => void;
 }
 
-export const Settings: React.FC<Props> = ({teamSize, balanceMode, hasTeams, moveMode, onTeamSizeChange, onBalanceModeChange, onToggleMoveMode}) => {
+export const Settings: React.FC<Props> = ({
+  teamSize,
+  balanceMode,
+  hasTeams,
+  moveMode,
+  onTeamSizeChange,
+  onBalanceModeChange,
+  onToggleMoveMode,
+}) => {
   return (
     <div className="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl p-6 text-white">
       <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -23,7 +31,7 @@ export const Settings: React.FC<Props> = ({teamSize, balanceMode, hasTeams, move
           <input
             type="number"
             value={teamSize}
-            onChange={(e) => onTeamSizeChange(parseInt(e.target.value))}
+            onChange={e => onTeamSizeChange(parseInt(e.target.value))}
             min="2"
             max="8"
             className="w-full px-4 py-3 rounded-lg text-gray-800"
@@ -33,7 +41,7 @@ export const Settings: React.FC<Props> = ({teamSize, balanceMode, hasTeams, move
           <label className="block mb-2 text-sm">バランス調整:</label>
           <select
             value={balanceMode}
-            onChange={(e) => onBalanceModeChange(e.target.value as 'grade' | 'simple')}
+            onChange={e => onBalanceModeChange(e.target.value as 'grade' | 'simple')}
             className="w-full px-4 py-3 rounded-lg text-gray-800"
           >
             <option value="grade">学年バランス優先</option>
@@ -44,9 +52,7 @@ export const Settings: React.FC<Props> = ({teamSize, balanceMode, hasTeams, move
           <button
             onClick={onToggleMoveMode}
             className={`w-full py-3 rounded-lg font-bold transition-all ${
-              moveMode
-                ? 'bg-yellow-500 hover:bg-yellow-600'
-                : 'bg-white/20 hover:bg-white/30'
+              moveMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-white/20 hover:bg-white/30'
             }`}
           >
             {moveMode ? '移動モード中' : 'メンバー移動'}

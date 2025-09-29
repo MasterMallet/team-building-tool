@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { ParticipantInput } from '../components/ParticipantInput';
 import { Stats } from '../components/Stats';
 import { Settings } from '../components/Settings';
 import { ControlButtons } from '../components/ControlButtons';
 import { TeamGroup } from '../components/TeamGroup';
-import {Participant} from "@domain/entities/Participant.ts";
-import {TeamDivisionResult, TeamDivisionUseCase} from "@domain/usecases/TeamDivisionUseCase.ts";
-import {LocalStorageParticipantRepository} from "@infrastructure/repositories/LocalStorageParticipantRepository.ts";
-import {ParticipantUseCase} from "@domain/usecases/ParticipantUseCase.ts";
+import { Participant } from '@domain/entities/Participant.ts';
+import { TeamDivisionResult, TeamDivisionUseCase } from '@domain/usecases/TeamDivisionUseCase.ts';
+import { LocalStorageParticipantRepository } from '@infrastructure/repositories/LocalStorageParticipantRepository.ts';
+import { ParticipantUseCase } from '@domain/usecases/ParticipantUseCase.ts';
 
 export const MarioKartTeamDivider: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -17,17 +17,20 @@ export const MarioKartTeamDivider: React.FC = () => {
   const [teamSize, setTeamSize] = useState(4);
   const [balanceMode, setBalanceMode] = useState<'grade' | 'simple'>('grade');
   const [teams, setTeams] = useState<TeamDivisionResult | null>(null);
-  const [selectedParticipant, setSelectedParticipant] = useState<{ participant: Participant; teamId: string } | null>(null);
+  const [selectedParticipant, setSelectedParticipant] = useState<{
+    participant: Participant;
+    teamId: string;
+  } | null>(null);
   const [moveMode, setMoveMode] = useState(false);
 
-  const repository = new LocalStorageParticipantRepository();
-  const participantUseCase = new ParticipantUseCase(repository);
+  const repository = useMemo(() => new LocalStorageParticipantRepository(), []);
+  const participantUseCase = useMemo(() => new ParticipantUseCase(repository), [repository]);
   const teamDivisionUseCase = new TeamDivisionUseCase();
 
   useEffect(() => {
     const loadedParticipants = participantUseCase.getAllParticipants();
     setParticipants(loadedParticipants);
-  }, []);
+  }, [participantUseCase]);
 
   const handleAddParticipant = () => {
     if (!name.trim()) {

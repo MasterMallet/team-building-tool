@@ -1,5 +1,5 @@
-import {IParticipantRepository} from "@domain/repositories/IParticipantRepository.ts";
-import {Participant} from "@domain/entities/Participant.ts";
+import { IParticipantRepository } from '@domain/repositories/IParticipantRepository.ts';
+import { Participant } from '@domain/entities/Participant.ts';
 
 export class LocalStorageParticipantRepository implements IParticipantRepository {
   private readonly storageKey = 'mario_kart_participants';

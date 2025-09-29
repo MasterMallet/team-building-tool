@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import {Participant} from "@domain/entities/Participant.ts";
-import {Team} from "@domain/entities/Team.ts";
+import { Participant } from '@domain/entities/Participant.ts';
+import { Team } from '@domain/entities/Team.ts';
 
 interface SelectedParticipant {
   participant: Participant;
@@ -17,8 +17,14 @@ interface Props {
   onMoveParticipant: (toTeamId: string) => void;
 }
 
-export const TeamGroup: React.FC<Props> = ({title, teams, moveMode, selectedParticipant, onSelectParticipant, onMoveParticipant
-                                           }) => {
+export const TeamGroup: React.FC<Props> = ({
+  title,
+  teams,
+  moveMode,
+  selectedParticipant,
+  onSelectParticipant,
+  onMoveParticipant,
+}) => {
   return (
     <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-2xl p-6">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">{title}</h2>
@@ -27,7 +33,9 @@ export const TeamGroup: React.FC<Props> = ({title, teams, moveMode, selectedPart
           <div
             key={team.id}
             className={`bg-white rounded-xl p-4 border-l-4 border-red-500 transition-all ${
-              moveMode && selectedParticipant?.teamId !== team.id ? 'hover:shadow-lg cursor-pointer' : ''
+              moveMode && selectedParticipant?.teamId !== team.id
+                ? 'hover:shadow-lg cursor-pointer'
+                : ''
             }`}
             onClick={() => {
               if (moveMode && selectedParticipant && selectedParticipant.teamId !== team.id) {
@@ -36,7 +44,9 @@ export const TeamGroup: React.FC<Props> = ({title, teams, moveMode, selectedPart
             }}
           >
             <div className="font-bold text-lg mb-3 flex items-center justify-between">
-              <span>{team.name} ({team.memberCount}人)</span>
+              <span>
+                {team.name} ({team.memberCount}人)
+              </span>
               {moveMode && selectedParticipant?.teamId !== team.id && (
                 <ArrowRight className="text-green-500" size={20} />
               )}
@@ -50,7 +60,7 @@ export const TeamGroup: React.FC<Props> = ({title, teams, moveMode, selectedPart
                       ? 'bg-yellow-300 font-bold'
                       : 'bg-gray-100'
                   } ${moveMode && selectedParticipant?.participant.id !== member.id ? 'hover:bg-blue-100 cursor-pointer' : ''}`}
-                  onClick={(e) => {
+                  onClick={e => {
                     if (moveMode) {
                       e.stopPropagation();
                       onSelectParticipant({ participant: member, teamId: team.id });

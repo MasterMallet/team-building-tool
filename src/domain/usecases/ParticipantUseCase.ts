@@ -1,5 +1,5 @@
-import {IParticipantRepository} from "@domain/repositories/IParticipantRepository.ts";
-import {Participant} from "@domain/entities/Participant.ts";
+import { IParticipantRepository } from '@domain/repositories/IParticipantRepository.ts';
+import { Participant } from '@domain/entities/Participant.ts';
 
 export class ParticipantUseCase {
   constructor(private repository: IParticipantRepository) {}
@@ -30,7 +30,7 @@ export class ParticipantUseCase {
     return {
       total: participants.length,
       lowerGrades,
-      upperGrades
+      upperGrades,
     };
   }
 }

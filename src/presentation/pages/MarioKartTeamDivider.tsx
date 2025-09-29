@@ -49,6 +49,15 @@ export const MarioKartTeamDivider: React.FC = () => {
     setParticipants(participantUseCase.getAllParticipants());
   };
 
+  const handleImportParticipants = (importedParticipants: Participant[]) => {
+    participantUseCase.clearAll();
+    importedParticipants.forEach(p => {
+      participantUseCase.addParticipant(p.name, p.grade);
+    });
+    setParticipants(participantUseCase.getAllParticipants());
+    setTeams(null); // チーム分けをリセット
+  };
+
   const handleDivideTeams = () => {
     if (participants.length === 0) {
       alert('参加者を登録してください');
@@ -119,6 +128,7 @@ export const MarioKartTeamDivider: React.FC = () => {
           onSelectParticipant={setSelectedParticipant}
           onMoveParticipant={handleMoveParticipant}
           onBackToReception={() => setScreen('reception')}
+          onImportParticipants={handleImportParticipants}
         />
       )}
     </>

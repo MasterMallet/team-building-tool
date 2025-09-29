@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Users, Trash2, ArrowLeft } from 'lucide-react';
 import { Participant } from '@domain/entities/Participant.ts';
 import { TeamDivisionResult } from '@domain/usecases/TeamDivisionUseCase.ts';
@@ -6,6 +6,7 @@ import { Stats } from './Stats';
 import { Settings } from './Settings';
 import { ControlButtons } from './ControlButtons';
 import { TeamGroup } from './TeamGroup';
+import { ExportImportButtons } from './ExportImportButtons';
 
 interface SelectedParticipant {
   participant: Participant;
@@ -29,6 +30,7 @@ interface Props {
   onSelectParticipant: (selected: SelectedParticipant) => void;
   onMoveParticipant: (toTeamId: string) => void;
   onBackToReception: () => void;
+  onImportParticipants: (participants: Participant[]) => void;
 }
 
 export const ManagementScreen: React.FC<Props> = ({
@@ -48,7 +50,10 @@ export const ManagementScreen: React.FC<Props> = ({
   onSelectParticipant,
   onMoveParticipant,
   onBackToReception,
+  onImportParticipants,
 }) => {
+  const [activeTab, setActiveTab] = useState<'participants' | 'teams'>('participants');
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div className="max-w-7xl mx-auto">
@@ -72,11 +77,32 @@ export const ManagementScreen: React.FC<Props> = ({
 
         {/* タブ切り替え */}
         <div className="mb-6">
-          <TabNavigation />
+          <div className="flex gap-2 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab('participants')}
+              className={`flex-1 py-4 px-6 text-lg font-bold rounded-xl transition-all ${
+                activeTab === 'participants'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              参加者一覧
+            </button>
+            <button
+              onClick={() => setActiveTab('teams')}
+              className={`flex-1 py-4 px-6 text-lg font-bold rounded-xl transition-all ${
+                activeTab === 'teams'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              チーム分け
+            </button>
+          </div>
         </div>
 
         {/* 参加者一覧タブ */}
-        <div id="participants-tab">
+        {activeTab === 'participants' && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* 参加者一覧 */}
             <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
@@ -119,91 +145,83 @@ export const ManagementScreen: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* 統計 */}
-            <div>
+            {/* 右カラム */}
+            <div className="space-y-6">
               <Stats
                 total={stats.total}
                 lowerGrades={stats.lowerGrades}
                 upperGrades={stats.upperGrades}
               />
-            </div>
-          </div>
-        </div>
 
-        {/* チーム分けタブ */}
-        <div id="teams-tab">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="md:col-span-3">
-              <Settings
-                teamSize={teamSize}
-                balanceMode={balanceMode}
-                hasTeams={teams !== null}
-                moveMode={moveMode}
-                onTeamSizeChange={onTeamSizeChange}
-                onBalanceModeChange={onBalanceModeChange}
-                onToggleMoveMode={onToggleMoveMode}
+              <ExportImportButtons
+                participants={participants}
+                teams={teams}
+                onImport={onImportParticipants}
               />
             </div>
           </div>
+        )}
 
-          <ControlButtons onDivide={onDivideTeams} onClear={onClearAll} />
+        {/* チーム分けタブ */}
+        {activeTab === 'teams' && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="md:col-span-2">
+                <Settings
+                  teamSize={teamSize}
+                  balanceMode={balanceMode}
+                  hasTeams={teams !== null}
+                  moveMode={moveMode}
+                  onTeamSizeChange={onTeamSizeChange}
+                  onBalanceModeChange={onBalanceModeChange}
+                  onToggleMoveMode={onToggleMoveMode}
+                />
+              </div>
 
-          {teams && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {teams.lowerTeams.length > 0 && (
-                <TeamGroup
-                  title={teams.type === 'grade' ? '🌟 下級生グループ (1-3年)' : '🔵 Aグループ'}
-                  teams={teams.lowerTeams}
-                  moveMode={moveMode}
-                  selectedParticipant={selectedParticipant}
-                  onSelectParticipant={onSelectParticipant}
-                  onMoveParticipant={onMoveParticipant}
-                />
-              )}
-              {teams.upperTeams.length > 0 && (
-                <TeamGroup
-                  title={teams.type === 'grade' ? '⭐ 上級生グループ (4-6年)' : '🔴 Bグループ'}
-                  teams={teams.upperTeams}
-                  moveMode={moveMode}
-                  selectedParticipant={selectedParticipant}
-                  onSelectParticipant={onSelectParticipant}
-                  onMoveParticipant={onMoveParticipant}
-                />
-              )}
+              <ExportImportButtons
+                participants={participants}
+                teams={teams}
+                onImport={onImportParticipants}
+              />
             </div>
-          )}
-        </div>
+
+            <ControlButtons onDivide={onDivideTeams} onClear={onClearAll} />
+
+            {teams && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {teams.lowerTeams.length > 0 && (
+                  <TeamGroup
+                    title={teams.type === 'grade' ? '🌟 下級生グループ (1-3年)' : '🔵 Aグループ'}
+                    teams={teams.lowerTeams}
+                    moveMode={moveMode}
+                    selectedParticipant={selectedParticipant}
+                    onSelectParticipant={onSelectParticipant}
+                    onMoveParticipant={onMoveParticipant}
+                  />
+                )}
+                {teams.upperTeams.length > 0 && (
+                  <TeamGroup
+                    title={teams.type === 'grade' ? '⭐ 上級生グループ (4-6年)' : '🔴 Bグループ'}
+                    teams={teams.upperTeams}
+                    moveMode={moveMode}
+                    selectedParticipant={selectedParticipant}
+                    onSelectParticipant={onSelectParticipant}
+                    onMoveParticipant={onMoveParticipant}
+                  />
+                )}
+              </div>
+            )}
+
+            {!teams && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-gray-200 dark:border-gray-700">
+                <p className="text-xl text-gray-500 dark:text-gray-400">
+                  「チーム分け実行」ボタンをクリックしてチームを作成してください
+                </p>
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </div>
-  );
-};
-
-// タブナビゲーション
-const TabNavigation: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'participants' | 'teams'>('participants');
-
-  return (
-    <div className="flex gap-2 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-      <button
-        onClick={() => setActiveTab('participants')}
-        className={`flex-1 py-4 px-6 text-lg font-bold rounded-xl transition-all ${
-          activeTab === 'participants'
-            ? 'bg-blue-600 text-white shadow-md'
-            : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-        }`}
-      >
-        参加者一覧
-      </button>
-      <button
-        onClick={() => setActiveTab('teams')}
-        className={`flex-1 py-4 px-6 text-lg font-bold rounded-xl transition-all ${
-          activeTab === 'teams'
-            ? 'bg-blue-600 text-white shadow-md'
-            : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-        }`}
-      >
-        チーム分け
-      </button>
     </div>
   );
 };

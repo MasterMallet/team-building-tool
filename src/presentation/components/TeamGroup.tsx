@@ -26,15 +26,17 @@ export const TeamGroup: React.FC<Props> = ({
   onMoveParticipant,
 }) => {
   return (
-    <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-2xl p-6">
-      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">{title}</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-gray-100">
+        {title}
+      </h2>
       <div className="space-y-4">
         {teams.map(team => (
           <div
             key={team.id}
-            className={`bg-white rounded-xl p-4 border-l-4 border-red-500 transition-all ${
+            className={`bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border-l-4 border-blue-500 dark:border-blue-400 transition-all ${
               moveMode && selectedParticipant?.teamId !== team.id
-                ? 'hover:shadow-lg cursor-pointer'
+                ? 'hover:shadow-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800'
                 : ''
             }`}
             onClick={() => {
@@ -43,23 +45,23 @@ export const TeamGroup: React.FC<Props> = ({
               }
             }}
           >
-            <div className="font-bold text-lg mb-3 flex items-center justify-between">
+            <div className="font-bold text-lg mb-3 flex items-center justify-between text-gray-800 dark:text-gray-100">
               <span>
                 {team.name} ({team.memberCount}人)
               </span>
               {moveMode && selectedParticipant?.teamId !== team.id && (
-                <ArrowRight className="text-green-500" size={20} />
+                <ArrowRight className="text-green-500 dark:text-green-400" size={20} />
               )}
             </div>
             <div className="grid grid-cols-2 gap-2">
               {team.members.map(member => (
                 <div
                   key={member.id}
-                  className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                  className={`px-3 py-2 rounded-lg text-sm transition-all border ${
                     selectedParticipant?.participant.id === member.id
-                      ? 'bg-yellow-300 font-bold'
-                      : 'bg-gray-100'
-                  } ${moveMode && selectedParticipant?.participant.id !== member.id ? 'hover:bg-blue-100 cursor-pointer' : ''}`}
+                      ? 'bg-yellow-200 dark:bg-yellow-800 font-bold border-yellow-400 dark:border-yellow-600'
+                      : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                  } ${moveMode && selectedParticipant?.participant.id !== member.id ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer' : ''} text-gray-800 dark:text-gray-100`}
                   onClick={e => {
                     if (moveMode) {
                       e.stopPropagation();

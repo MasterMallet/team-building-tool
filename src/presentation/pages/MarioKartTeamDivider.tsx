@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Header } from '../components/Header';
-import { ParticipantInput } from '../components/ParticipantInput';
-import { Stats } from '../components/Stats';
-import { Settings } from '../components/Settings';
-import { ControlButtons } from '../components/ControlButtons';
-import { TeamGroup } from '../components/TeamGroup';
+import { Settings as SettingsIcon } from 'lucide-react';
+import { ReceptionScreen } from '../components/ReceptionScreen';
+import { ManagementScreen } from '../components/ManagementScreen';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { useTheme } from '../hooks/useTheme';
 import { Participant } from '@domain/entities/Participant.ts';
-import { TeamDivisionResult, TeamDivisionUseCase } from '@domain/usecases/TeamDivisionUseCase.ts';
+import { TeamDivisionResult } from '@domain/usecases/TeamDivisionUseCase.ts';
 import { LocalStorageParticipantRepository } from '@infrastructure/repositories/LocalStorageParticipantRepository.ts';
 import { ParticipantUseCase } from '@domain/usecases/ParticipantUseCase.ts';
+import { TeamDivisionUseCase } from '@domain/usecases/TeamDivisionUseCase.ts';
+
+type Screen = 'reception' | 'management';
 
 export const MarioKartTeamDivider: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
+  const [screen, setScreen] = useState<Screen>('reception');
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [name, setName] = useState('');
-  const [grade, setGrade] = useState(1);
   const [teamSize, setTeamSize] = useState(4);
   const [balanceMode, setBalanceMode] = useState<'grade' | 'simple'>('grade');
   const [teams, setTeams] = useState<TeamDivisionResult | null>(null);
@@ -32,19 +34,14 @@ export const MarioKartTeamDivider: React.FC = () => {
     setParticipants(loadedParticipants);
   }, [participantUseCase]);
 
-  const handleAddParticipant = () => {
-    if (!name.trim()) {
-      alert('名前を入力してください');
-      return;
-    }
+  const handleAddParticipant = (name: string, grade: number) => {
     if (participants.length >= 160) {
       alert('参加者は最大160人までです');
       return;
     }
 
-    participantUseCase.addParticipant(name.trim(), grade);
+    participantUseCase.addParticipant(name, grade);
     setParticipants(participantUseCase.getAllParticipants());
-    setName('');
   };
 
   const handleRemoveParticipant = (id: string) => {
@@ -88,65 +85,42 @@ export const MarioKartTeamDivider: React.FC = () => {
   const stats = participantUseCase.getStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-200 via-pink-200 to-blue-200 p-4">
-      <div className="max-w-7xl mx-auto bg-white/95 rounded-3xl shadow-2xl p-6">
-        <Header />
+    <>
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <ParticipantInput
-            participants={participants}
-            name={name}
-            grade={grade}
-            onNameChange={setName}
-            onGradeChange={setGrade}
-            onAdd={handleAddParticipant}
-            onRemove={handleRemoveParticipant}
-          />
+      {/* 管理画面切り替えボタン（受付画面のみ表示） */}
+      {screen === 'reception' && (
+        <button
+          onClick={() => setScreen('management')}
+          className="fixed bottom-4 right-4 p-4 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white shadow-2xl hover:scale-110 transition-all z-50"
+          aria-label="管理画面へ"
+        >
+          <SettingsIcon size={32} />
+        </button>
+      )}
 
-          <Stats
-            total={stats.total}
-            lowerGrades={stats.lowerGrades}
-            upperGrades={stats.upperGrades}
-          />
-
-          <Settings
-            teamSize={teamSize}
-            balanceMode={balanceMode}
-            hasTeams={teams !== null}
-            moveMode={moveMode}
-            onTeamSizeChange={setTeamSize}
-            onBalanceModeChange={setBalanceMode}
-            onToggleMoveMode={() => setMoveMode(!moveMode)}
-          />
-        </div>
-
-        <ControlButtons onDivide={handleDivideTeams} onClear={handleClearAll} />
-
-        {teams && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {teams.lowerTeams.length > 0 && (
-              <TeamGroup
-                title={teams.type === 'grade' ? '🌟 下級生グループ (1-3年)' : '🔵 Aグループ'}
-                teams={teams.lowerTeams}
-                moveMode={moveMode}
-                selectedParticipant={selectedParticipant}
-                onSelectParticipant={setSelectedParticipant}
-                onMoveParticipant={handleMoveParticipant}
-              />
-            )}
-            {teams.upperTeams.length > 0 && (
-              <TeamGroup
-                title={teams.type === 'grade' ? '⭐ 上級生グループ (4-6年)' : '🔴 Bグループ'}
-                teams={teams.upperTeams}
-                moveMode={moveMode}
-                selectedParticipant={selectedParticipant}
-                onSelectParticipant={setSelectedParticipant}
-                onMoveParticipant={handleMoveParticipant}
-              />
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+      {screen === 'reception' ? (
+        <ReceptionScreen onAdd={handleAddParticipant} totalCount={participants.length} />
+      ) : (
+        <ManagementScreen
+          participants={participants}
+          teams={teams}
+          teamSize={teamSize}
+          balanceMode={balanceMode}
+          moveMode={moveMode}
+          selectedParticipant={selectedParticipant}
+          stats={stats}
+          onRemove={handleRemoveParticipant}
+          onTeamSizeChange={setTeamSize}
+          onBalanceModeChange={setBalanceMode}
+          onToggleMoveMode={() => setMoveMode(!moveMode)}
+          onDivideTeams={handleDivideTeams}
+          onClearAll={handleClearAll}
+          onSelectParticipant={setSelectedParticipant}
+          onMoveParticipant={handleMoveParticipant}
+          onBackToReception={() => setScreen('reception')}
+        />
+      )}
+    </>
   );
 };

@@ -1,9 +1,0 @@
-dist
-node_modules
-*.config.js
-*.config.cjs
-*.config.mjs
-vite.config.ts
-coverage
-build
-.cache

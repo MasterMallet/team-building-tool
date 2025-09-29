@@ -100,5 +100,16 @@ module.exports = {
       },
     },
   },
-  ignorePatterns: ['dist', 'node_modules', '*.cjs'],
+  ignorePatterns: [
+    'dist',
+    'node_modules',
+    'coverage',
+    'build',
+    '*.config.js',
+    '*.config.cjs',
+    '*.config.mjs',
+    'vite.config.ts',
+    '.cache',
+    '*.cjs'
+  ],
 }

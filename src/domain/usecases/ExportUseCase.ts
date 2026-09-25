@@ -5,21 +5,21 @@ import { TeamDivisionResult } from './TeamDivisionUseCase';
 export class ExportUseCase {
   // CSV形式でエクスポート
   exportToCSV(participants: Participant[]): string {
-    const headers = ['番号', '名前', '学年'];
-    const rows = participants.map((p, index) => [index + 1, p.name, p.grade]);
+    const headers = ['番号', '学年'];
+    const rows = participants.map(p => [p.number, p.grade]);
 
     return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
   }
 
   // チーム分け結果のCSVエクスポート
   exportTeamsToCSV(teams: TeamDivisionResult): string {
-    const headers = ['グループ', 'チーム名', '番号', '名前', '学年'];
+    const headers = ['グループ', 'チーム名', '番号', '学年'];
     const rows: string[][] = [];
 
     const processTeams = (teamList: Team[], groupName: string) => {
       teamList.forEach(team => {
-        team.members.forEach((member, index) => {
-          rows.push([groupName, team.name, String(index + 1), member.name, String(member.grade)]);
+        team.members.forEach(member => {
+          rows.push([groupName, team.name, String(member.number), String(member.grade)]);
         });
       });
     };
@@ -39,15 +39,35 @@ export class ExportUseCase {
     const lines = csvContent.split('\n').filter(line => line.trim());
     const participants: Participant[] = [];
 
-    // ヘッダー行をスキップ
-    for (let i = 1; i < lines.length; i++) {
-      const [, name, gradeStr] = lines[i].split(',').map(s => s.trim());
-      const grade = parseInt(gradeStr);
-
-      if (name && grade >= 1 && grade <= 6) {
-        participants.push(Participant.create(name, grade));
-      }
+    const headers = lines[0]
+      ?.replace(/^\uFEFF/, '')
+      .split(',')
+      .map(s => s.trim());
+    const numberColumn = headers?.indexOf('番号') ?? -1;
+    const gradeColumn = headers?.indexOf('学年') ?? -1;
+    if (numberColumn < 0 || gradeColumn < 0) {
+      throw new Error('CSVには番号と学年の列が必要です');
     }
+    const usedNumbers = new Set<number>();
+    for (let i = 1; i < lines.length; i++) {
+      const columns = lines[i].split(',').map(s => s.trim());
+      const number = Number(columns[numberColumn]);
+      const grade = Number(columns[gradeColumn]);
+      if (
+        !Number.isSafeInteger(number) ||
+        number < 1 ||
+        !Number.isInteger(grade) ||
+        grade < 1 ||
+        grade > 6 ||
+        usedNumbers.has(number)
+      ) {
+        throw new Error(`${i + 1}行目の番号・学年が不正、または番号が重複しています`);
+      }
+      usedNumbers.add(number);
+      participants.push(Participant.create(number, grade));
+    }
+    if (participants.length > 160) throw new Error('参加者は最大160人までです');
+    participants.sort((a, b) => a.number - b.number);
 
     return participants;
   }
@@ -63,8 +83,8 @@ export class ExportUseCase {
           <ul>
             ${team.members
               .map(
-                (member, index) => `
-              <li>${index + 1}. ${member.name} (${member.grade}年生)</li>
+                member => `
+              <li>${member.number}番 (${member.grade}年生)</li>
             `
               )
               .join('')}

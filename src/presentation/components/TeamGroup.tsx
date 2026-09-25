@@ -69,7 +69,7 @@ export const TeamGroup: React.FC<Props> = ({
                     }
                   }}
                 >
-                  {member.name} ({member.grade}年)
+                  {member.number}番 ({member.grade}年)
                 </div>
               ))}
             </div>

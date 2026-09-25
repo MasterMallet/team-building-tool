@@ -112,17 +112,14 @@ export const ManagementScreen: React.FC<Props> = ({
               </h3>
               <div className="max-h-[600px] overflow-y-auto bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {participants.map((p, index) => (
+                  {participants.map(p => (
                     <div
                       key={p.id}
                       className="flex justify-between items-center bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-500 dark:text-gray-400 font-mono text-sm">
-                          {String(index + 1).padStart(3, '0')}
-                        </span>
                         <div>
-                          <div className="font-bold">{p.name}</div>
+                          <div className="font-bold">{p.number}番</div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             {p.grade}年生
                           </div>
@@ -130,6 +127,7 @@ export const ManagementScreen: React.FC<Props> = ({
                       </div>
                       <button
                         onClick={() => onRemove(p.id)}
+                        aria-label={`${p.number}番を削除`}
                         className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
                       >
                         <Trash2 size={18} />

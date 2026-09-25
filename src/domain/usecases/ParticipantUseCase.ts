@@ -4,8 +4,11 @@ import { Participant } from '@domain/entities/Participant.ts';
 export class ParticipantUseCase {
   constructor(private repository: IParticipantRepository) {}
 
-  addParticipant(name: string, grade: number): Participant {
-    const participant = Participant.create(name, grade);
+  addParticipant(grade: number): Participant {
+    if (!Number.isInteger(grade) || grade < 1 || grade > 6) {
+      throw new Error('学年は1〜6年生を選択してください');
+    }
+    const participant = Participant.create(this.repository.getNextNumber(), grade);
     this.repository.save(participant);
     return participant;
   }

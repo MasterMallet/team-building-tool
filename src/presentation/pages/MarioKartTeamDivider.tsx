@@ -34,25 +34,32 @@ export const MarioKartTeamDivider: React.FC = () => {
     setParticipants(loadedParticipants);
   }, [participantUseCase]);
 
-  const handleAddParticipant = (name: string, grade: number) => {
+  const handleAddParticipant = (grade: number) => {
     if (participants.length >= 160) {
       alert('参加者は最大160人までです');
       return;
     }
 
-    participantUseCase.addParticipant(name, grade);
+    const participant = participantUseCase.addParticipant(grade);
     setParticipants(participantUseCase.getAllParticipants());
+    setTeams(null);
+    setSelectedParticipant(null);
+    setMoveMode(false);
+    return participant;
   };
 
   const handleRemoveParticipant = (id: string) => {
     participantUseCase.removeParticipant(id);
+    setTeams(null);
+    setSelectedParticipant(null);
+    setMoveMode(false);
     setParticipants(participantUseCase.getAllParticipants());
   };
 
   const handleImportParticipants = (importedParticipants: Participant[]) => {
-    participantUseCase.clearAll();
+    repository.clear();
     importedParticipants.forEach(p => {
-      participantUseCase.addParticipant(p.name, p.grade);
+      repository.save(p);
     });
     setParticipants(participantUseCase.getAllParticipants());
     setTeams(null); // チーム分けをリセット
@@ -69,7 +76,7 @@ export const MarioKartTeamDivider: React.FC = () => {
   };
 
   const handleClearAll = () => {
-    if (window.confirm('全てのデータをリセットしますか？')) {
+    if (window.confirm('全てのデータをリセットし、受付番号を1番からやり直しますか？')) {
       participantUseCase.clearAll();
       setParticipants([]);
       setTeams(null);

@@ -187,7 +187,7 @@ export const ExportImportButtons: React.FC<Props> = ({ participants, teams, onIm
       </div>
 
       <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 space-y-1">
-        <p>💡 CSVフォーマット: 番号,名前,学年</p>
+        <p>💡 CSVフォーマット: 番号,学年</p>
         <p>💡 PDFは新しいタブで開き、印刷ダイアログが表示されます</p>
       </div>
     </div>

@@ -4,5 +4,6 @@ export interface IParticipantRepository {
   save(participant: Participant): void;
   remove(id: string): void;
   getAll(): Participant[];
+  getNextNumber(): number;
   clear(): void;
 }
